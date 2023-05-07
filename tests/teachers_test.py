@@ -100,3 +100,49 @@ def test_grade_assignment_draft_assignment(client, h_teacher_1):
     data = response.json
 
     assert data['error'] == 'FyleError'
+
+def test_grade_assignment_completed(client, h_teacher_1):
+    """
+    success case: assignment grading complete
+    """
+    response = client.post(
+        '/teacher/assignments/grade',
+        headers=h_teacher_1,
+        json={
+            "id": 1,
+            "grade": "A"
+        }
+    )
+
+    assert response.status_code == 200
+    data = response.json['data']
+
+    assert data['grade'] == 'A'
+    assert data['id'] == 1
+
+def test_grade_assignment_missing_grade(client, h_teacher_1):
+    """
+    failure case: invalid grade [null] is provided
+    """
+    response = client.post(
+        '/teacher/assignments/grade',
+        headers=h_teacher_1,
+        json={
+            "id": 1
+        }
+    )
+    assert response.status_code == 400
+
+def test_grade_submission_missing_header(client, h_teacher_1):
+    """
+    failure case: header missing in request 
+    """
+    response = client.post(
+        '/teacher/assignments/grade',
+        headers={},
+        json={
+            "id": 1,
+            "grade": "A"
+        }
+    )
+    assert response.status_code == 401

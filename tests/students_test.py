@@ -71,3 +71,37 @@ def test_assingment_resubmitt_error(client, h_student_1):
     assert response.status_code == 400
     assert error_response['error'] == 'FyleError'
     assert error_response["message"] == 'only a draft assignment can be submitted'
+
+def test_assignment_update_request_with_invalid_state(client, h_student_1):
+    """
+        failure case: update request for a non draft state assignment
+    """
+    response = client.post(
+        '/student/assignments/',
+        headers=h_student_1,
+        json={
+            'id': 2,
+            'content': 'some text'
+        })
+
+    data = response.json
+    assert response.status_code == 400
+    assert data['error'] == 'FyleError'
+    assert data['message'] == 'only assignment in draft state can be edited'
+
+def test_assignment_update_request_with_invalid_id(client, h_student_1):
+    """
+        failure case: non existing ID in request body for update assignment request
+    """
+    response = client.post(
+        '/student/assignments/',
+        headers=h_student_1,
+        json={
+            'id': 999,
+            'content': 'some text'
+        })
+
+    data = response.json
+    assert response.status_code == 404
+    assert data['error'] == 'FyleError'
+    assert data['message'] == 'No assignment with this id was found'
