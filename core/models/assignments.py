@@ -79,3 +79,19 @@ class Assignment(db.Model):
     @classmethod
     def get_assignments_by_teacher(cls, teacher_id):
         return cls.filter(cls.teacher_id == teacher_id).all()
+
+    @classmethod
+    def grade_assignment(cls, _id, grade, principal: Principal):
+        assignment = Assignment.get_by_id(_id)
+        assertions.assert_found(assignment, 'No assignment with this id was found')
+        assertions.assert_valid(assignment.teacher_id == 
+        principal.teacher_id, 'This assignment belongs to some other teacher')
+        """allowing grade to be updated"""
+        assertions.assert_valid(assignment.grade != grade, 'assignment has been already graded')
+        assertions.assert_valid(assignment.state != AssignmentStateEnum.DRAFT, 'assignment is in draft state')
+
+        assignment.grade = grade
+        assignment.state = AssignmentStateEnum.GRADED
+        db.session.flush()
+    
+        return assignment
